@@ -13,7 +13,7 @@ const scene = new three.Scene()
 
 const pointLight = new three.PointLight(0xffffff, 0.8)
 const ambientLight = new three.AmbientLight(0xcccccc, 0.4)
-camera.add(pointLight)
+camera.add(pointLight);
 camera.add(ambientLight)
 
 scene.add(camera)
@@ -40,7 +40,7 @@ new three.OBJLoader().load('assets/models/boy.obj', boy => {
 const renderer = new three.WebGLRenderer()
 renderer.setClearColor(0xf0f0f0, 1.0)
 renderer.setPixelRatio(window.devicePixelRatio)
-renderer.setSize(window.innerWidth / 2, window.innerHeight / 2)
+renderer.setSize(window.innerWidth, window.innerHeight)
 container.appendChild(renderer.domElement)
 
 const controls = new OrbitControls(camera)
