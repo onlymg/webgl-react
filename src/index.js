@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom'
 const three = window.THREE = require('three')
 
 require('three/examples/js/loaders/OBJLoader')
+require('three/examples/js/loaders/STLLoader')
 require('three/examples/js/controls/OrbitControls')
 require('three/src/loaders/TextureLoader')
 
@@ -30,7 +31,7 @@ class Renderer extends Component {
     this.camera.add(new three.AmbientLight(0xffffff, 0.9))
 
     // add a plane 
-    const planeGeometry = new THREE.PlaneBufferGeometry(60, 60, 22, 22)
+    const planeGeometry = new THREE.PlaneBufferGeometry(60, 60)
     const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff })
     const plane = new THREE.Mesh(planeGeometry, planeMaterial)
     plane.receiveShadow = true
@@ -52,10 +53,20 @@ class Renderer extends Component {
     this.container.appendChild(this.renderer.domElement)
 
     // controls
-    const controls = new three.OrbitControls(this.camera)
-    controls.enableDamping = true
-    controls.dampingFactor = 0.99
-    controls.enableZoom = true
+    this.controls = new three.OrbitControls(this.camera, this.renderer.domElement)
+    this.controls.enableDamping = true
+    this.controls.dampingFactor = 0.1
+    this.controls.enableZoom = true
+    this.controls.panSpeed = 0.2
+    this.controls.rotateSpeed = 0.05
+    this.controls.maxDistance = 100
+    this.controls.minDistance = 10
+    // this.controls.autoRotate = true
+    // this.controls.autoRotateSpeed = 0.5
+    this.controls.maxAzimuthAngle = Math.PI / 2
+    this.controls.minAzimuthAngle = - Math.PI / 2
+    this.controls.maxPolarAngle = Math.PI
+    this.controls.minPolarAngle = - Math.PI / 2
 
     // add objects from props
     this.props.objects.forEach(element => this.scene.add(element))
@@ -90,6 +101,7 @@ class Renderer extends Component {
 
   animate() {
     this.frameID = requestAnimationFrame(this.animate.bind(this))
+    this.controls.update()
     this.renderScene()
   }
 
@@ -120,7 +132,7 @@ class App extends Component {
   componentDidMount() {
 
     // example cubes
-    const texture = new three.TextureLoader().load('assets/textures/grid.jpg')
+    const texture = new three.TextureLoader().load('assets/textures/quad.jpg')
     const material = new three.MeshStandardMaterial({ map: texture })
     const cube1 = new three.Mesh(new three.BoxBufferGeometry(5, 5, 5), material)
     const cube2 = new three.Mesh(new three.BoxBufferGeometry(2, 2, 2), material)
@@ -136,20 +148,19 @@ class App extends Component {
     this.objectOffset++
 
     this.setState({ ...this.state, objects: [ cube1, cube2 ] })
+
   }
 
   addCube() {
-
     // adds cube with random color and width to scene
-
+    const textures = [ 'metal', 'tiles', 'grid' ]
+    const texture = new three.TextureLoader().load(`assets/textures/${ textures[getRandomInteger(0, textures.length-1)] }.jpg`)
     const x = getRandomInteger(1, 5)
-    const material = new three.MeshStandardMaterial({ color: getRandomColor() })
+    const material = new three.MeshStandardMaterial({ map: texture })
     const cube = new three.Mesh(new three.BoxGeometry(x, x, x), material)
     cube.castShadow = true
     cube.receiveShadow = true
-
     cube.position.z = 5 * this.objectOffset++
-
     this.setState({ ...this.state, objects: [ ...this.state.objects, cube ] })
   }
 
