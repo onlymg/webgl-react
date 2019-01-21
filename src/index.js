@@ -16,38 +16,86 @@ class Renderer extends Component {
           height = window.innerHeight * 0.9
 
     // init camera
-    this.camera = new three.PerspectiveCamera(45, width / height, 1, 1000)
-    this.camera.position.set(0, 0, 20)
+    this.camera = new three.PerspectiveCamera(45, width / height, 1, 10000)
+    this.camera.position.set(-5, 5, 5)
 
     // add the scene to render in
     this.scene = new three.Scene()
+    // this.scene.fog = new three.Fog(0x333333, 5, 40)
     
     // add light to scene
-    const light = new three.DirectionalLight(0xffffff, 0.9)
-    light.castShadow = true
-    light.position.set(20, 20, 0)
+    const light = new three.SpotLight(0xffffff, 1)
+    light.position.set(-50, 50, 0)
 
-    this.camera.add(light)
-    this.camera.add(new three.AmbientLight(0xffffff, 0.9))
+    // const h = new three.SpotLightHelper(light, 1, 0x333333)
+    // this.scene.add(h)
+    
+    
+    this.scene.add(light)
+
+    // new three.
+    this.scene.add(new three.AmbientLight(0xffffff, 0.9))
+
+
+
+    const axes = new THREE.AxesHelper(10);
+    this.scene.add(axes);
 
     // add a plane 
-    const planeGeometry = new THREE.PlaneBufferGeometry(60, 60)
-    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff })
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-    plane.receiveShadow = true
-    plane.position.z = -2.5
-    this.scene.add(plane)
+    // const planeGeometry = new three.PlaneBufferGeometry(60, 60)
+    // const planeMaterial = new three.MeshStandardMaterial({ color: 0xffffff })
+    // const plane = new three.Mesh(planeGeometry, planeMaterial)
+    // plane.receiveShadow = true
+    // plane.position.z = 0
+    // this.scene.add(plane)
+
+    // add object
+    // new three.OBJLoader().load('assets/models/boy.obj', geometry => {
+    //   // const material = new THREE.MeshPhongMaterial({ color: 0xff5533, specular: 0x111111, shininess: 200 })
+    //   // const obj = new three.Mesh(geometry, material)
+    //   this.scene.add(geometry)
+    // })
+
+    // example texture
+    const texture = new three.TextureLoader().load('assets/textures/grid.jpg')
+
+    // one unit is 10 cm
+    const worldScale = 1 / 100
+
+
+    // add object
+    new three.STLLoader().load('assets/models/test.stl', geometry => {
+      const material = new THREE.MeshStandardMaterial({ color: 'darkslategrey', specular: 0x111111, shininess: 200 })
+      const obj = new three.Mesh(geometry, material)      
+      obj.scale.y = worldScale
+      obj.scale.x = worldScale
+      obj.scale.z = worldScale
+      obj.position.set(0,0,0)
+      obj.rotateX(- Math.PI / 2)
+      this.scene.add(obj)
+    })
+
+    new three.STLLoader().load('assets/models/test.stl', geometry => {
+      const material = new THREE.MeshStandardMaterial({ color: 'slateblue', specular: 0x111111, shininess: 200 })
+      const obj = new three.Mesh(geometry, material)
+      obj.scale.y = worldScale
+      obj.scale.x = worldScale
+      obj.scale.z = worldScale
+      obj.position.set(0,0,-1.5)      
+      obj.rotateX(- Math.PI / 2)
+      this.scene.add(obj)
+    })
+
 
     // add camera to scene
     this.scene.add(this.camera)
+
 
     // init renderer
     this.renderer = new three.WebGLRenderer()
     this.renderer.setClearColor(0xf0f0f0, 1.0)
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(width, height)
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = three.PCFSoftShadowMap;
 
     // append canvas
     this.container.appendChild(this.renderer.domElement)
@@ -57,16 +105,19 @@ class Renderer extends Component {
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.1
     this.controls.enableZoom = true
-    this.controls.panSpeed = 0.2
     this.controls.rotateSpeed = 0.05
-    this.controls.maxDistance = 100
-    this.controls.minDistance = 10
+
+    this.controls.enablePan = true
+    this.controls.screenSpacePanning = true
+    this.controls.panSpeed = 0.05
+    // this.controls.maxDistance = 1000
+    // this.controls.minDistance = 10
     // this.controls.autoRotate = true
     // this.controls.autoRotateSpeed = 0.5
-    this.controls.maxAzimuthAngle = Math.PI / 2
-    this.controls.minAzimuthAngle = - Math.PI / 2
-    this.controls.maxPolarAngle = Math.PI
-    this.controls.minPolarAngle = - Math.PI / 2
+    // this.controls.maxAzimuthAngle = Math.PI / 2
+    // this.controls.minAzimuthAngle = - Math.PI / 2
+    // this.controls.maxPolarAngle = Math.PI
+    // this.controls.minPolarAngle = - Math.PI / 2
 
     // add objects from props
     this.props.objects.forEach(element => this.scene.add(element))
@@ -147,7 +198,7 @@ class App extends Component {
     this.objectOffset++
     this.objectOffset++
 
-    this.setState({ ...this.state, objects: [ cube1, cube2 ] })
+    // this.setState({ ...this.state, objects: [ cube1, cube2 ] })
 
   }
 
